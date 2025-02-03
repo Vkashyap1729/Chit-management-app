@@ -11,6 +11,7 @@ export default function ChitCard({ chit }) {
   const endDate = startDate.add(chit.duration, 'month'); // Calculate the end date based on duration
 
   // Calculate months left
+  
   const monthsLeft = endDate.diff(dayjs(), 'month');
 
   const handleCardClick = () => {
