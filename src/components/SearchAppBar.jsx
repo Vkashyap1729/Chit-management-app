@@ -7,6 +7,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import Switch from "@mui/material/Switch";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from '../slices/themeSlice';
+import { Stack } from "@mui/material";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -56,20 +57,26 @@ export default function SearchAppBar() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
-          </Search>
-
-          {/* Theme Toggle Switch */}
+        <Stack sx={{ flexDirection : 'row', justifyContent: "space-between", alignItems: "center" }}>
+          <Toolbar>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
+            </Search>
+          </Toolbar>
+          <Stack sx={{ flexDirection : 'row', justifyContent: "space-between", alignItems: "center" }}>
           <Switch
             checked={themeMode === "dark"}
             onChange={() => dispatch(toggleTheme())}
           />
-        </Toolbar>
+          <Switch
+            checked={themeMode === "dark"}
+            onChange={() => dispatch(toggleTheme())}
+          />
+          </Stack>
+        </Stack>
       </AppBar>
     </Box>
   );
