@@ -8,6 +8,8 @@ import LoginPage from "./pages/Login";
 import SignUpPage from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ListAllChitMembers from "./pages/ListAllChitMembers";
+import ChitMemberDetails from "./pages/ChitMemberDetails";
+
 function App() {
   const themeMode = useSelector((state) => state.theme.mode);
   
@@ -23,7 +25,7 @@ function App() {
           <Route path="/fgt-psd" element={<ForgotPassword />} />
           <Route path="/list-all-chits" element={<ListAllChits />} />
           <Route path="/list-all-members" element={<ListAllChitMembers />} />
-          <Route path="/chit-member" element={<ListAllChits />} />
+          <Route path="/chit-member" element={<ChitMemberDetails />} />
         </Routes>
       </Router>
     </ThemeProvider>
