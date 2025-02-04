@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { Grid, TextField, Box, Button, Typography, Link } from "@mui/material";
+import { InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
-
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev);  // Toggle the value of showPassword
+  };
   const handleSubmitLogin = (e) => {
     e.preventDefault();
     console.log("Logging in with", email, password);
@@ -45,13 +50,26 @@ const LoginPage = () => {
             />
             <TextField
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}  // Toggle between text and password
               fullWidth
               value={password}
               onChange={handlePasswordChange}
               margin="normal"
               variant="outlined"
               required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"
@@ -69,7 +87,7 @@ const LoginPage = () => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/fgt-psd" variant="body2">
                   Forgot Password?
                 </Link>
               </Grid>

@@ -71,10 +71,6 @@ export default function SearchAppBar() {
             checked={themeMode === "dark"}
             onChange={() => dispatch(toggleTheme())}
           />
-          <Switch
-            checked={themeMode === "dark"}
-            onChange={() => dispatch(toggleTheme())}
-          />
           </Stack>
         </Stack>
       </AppBar>

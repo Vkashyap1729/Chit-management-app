@@ -1,21 +1,32 @@
 import { useState } from "react";
 import { Grid, TextField, Box, Button, Typography, Link } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { setNotification } from '../slices/notificationSlice'
+import { InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [confrimShowPassword, setConfrimShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const dispatch = useDispatch()
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
   const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value);
-
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev);  // Toggle the value of showPassword
+  };
+  const handleClickConfrimShowPassword = () => { 
+    setConfrimShowPassword((prev) => !prev);  // Toggle the value of confrimShow
+  };
   const handleSubmitSignUp = (e) => {
     e.preventDefault();
     if (password === confirmPassword) {
       console.log("Signing up with", email, password);
     } else {
-      console.error("Passwords don't match");
+      dispatch(setNotification({ message: "Passwords do not match", severity: "error" , open: true}))
     }
   };
 
@@ -46,6 +57,7 @@ const SignUpPage = () => {
             margin="normal"
             variant="outlined"
             required
+            onChange={handleEmailChange}
             sx={{
                 "& label.Mui-focused": {
                 color: (theme) =>
@@ -70,23 +82,49 @@ const SignUpPage = () => {
 
             <TextField
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}  // Toggle between text and password
               fullWidth
               value={password}
               onChange={handlePasswordChange}
               margin="normal"
               variant="outlined"
               required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               label="Confirm Password"
-              type="password"
+              type={confrimShowPassword ? 'text' : 'password'}  // Toggle between text and password
               fullWidth
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
               margin="normal"
               variant="outlined"
               required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickConfrimShowPassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                    >
+                      {confrimShowPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"
