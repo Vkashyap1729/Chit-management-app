@@ -1,30 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, Stack } from "@mui/material";
+import { useLocation, useNavigate } from 'react-router-dom';
+import {sendOtp, validate, resetPassword} from '../api';
+import { setNotification } from "../slices/notificationSlice";
+import { useDispatch } from "react-redux";
+import { Password } from "@mui/icons-material";
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState('');
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get('type') || 'forgot_password';
+  
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const emailFromUrl = queryParams.get('email');
+    const typeFromUrl = queryParams.get('type');
+    if (typeFromUrl === 'signup' && emailFromUrl) {
+      setEmail(emailFromUrl);
+      setStep(2);
+  }
+  }, [location.search]); 
 
-  const handleSendOTP = () => {
-    console.log("Sending OTP to", email);
-    setStep(2);
-  };
-
-  const handleVerifyOTP = () => {
-    console.log("Verifying OTP", otp);
-    setStep(3);
-  };
-
-  const handleResetPassword = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
+  const handleSendOTP = async() => {
+    try {
+      const response = await sendOtp({ email: email, type: type  });
+      dispatch(setNotification({ message: response.message, severity: "success", open: true }));
+      setStep(2);
+    } catch (error) {
+      const errorMessage = error.message || "Something went wrong";
+      dispatch(setNotification({ message: errorMessage, severity: "error", open: true }));
     }
-    console.log("Password Reset Successful");
-    setStep(1);
+  };
+
+  const handleVerifyOTP = async() => {
+    try {
+      const response = await validate({ email: email, otp : otp , type : type });
+      dispatch(setNotification({ message: response.message, severity: "success", open: true }));
+      if(type === 'signup'){
+        navigate('/login')
+      }else{
+        setStep(3);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Something went wrong";
+      dispatch(setNotification({ message: errorMessage, severity: "error", open: true }));
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (newPassword !== confirmPassword) {
+      dispatch(setNotification({ message: 'Both passwords donot match.', severity: "error", open: true }));
+    }else{
+      try {
+        const response = await resetPassword({ email: email, password : newPassword });
+        dispatch(setNotification({ message: response.message, severity: "success", open: true }));
+        navigate('/login')
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || "Something went wrong";
+        dispatch(setNotification({ message: errorMessage, severity: "error", open: true }));
+      }
+    }
   };
 
   return (
@@ -41,6 +83,7 @@ export default function ForgotPassword() {
       {step === 2 && (
         <Stack spacing={2}>
           <TextField label="Enter OTP" fullWidth value={otp} onChange={(e) => setOtp(e.target.value)} />
+          <Button variant="contained" onClick={handleSendOTP}>Send OTP</Button>
           <Button variant="contained" onClick={handleVerifyOTP}>Verify OTP</Button>
         </Stack>
       )}

@@ -1,32 +1,44 @@
 import { useState } from "react";
-import { Grid, TextField, Box, Button, Typography, Link } from "@mui/material";
+import { Grid, TextField, Box, Button, Typography, Link, CircularProgress } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { setNotification } from '../slices/notificationSlice'
 import { InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { signUp } from '../api'
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [confrimShowPassword, setConfrimShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const dispatch = useDispatch()
+  const [name, setName] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
   const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value);
   const handleClickShowPassword = () => {
-    setShowPassword((prev) => !prev);  // Toggle the value of showPassword
+    setShowPassword((prev) => !prev);
   };
-  const handleClickConfrimShowPassword = () => { 
-    setConfrimShowPassword((prev) => !prev);  // Toggle the value of confrimShow
-  };
-  const handleSubmitSignUp = (e) => {
+
+  const handleSubmitSignUp = async (e) => {
     e.preventDefault();
     if (password === confirmPassword) {
-      console.log("Signing up with", email, password);
+      const userData = { email, name, password };
+      const type = "signup";
+      try {
+        const response = await signUp(userData);
+        dispatch(setNotification({ message: response.message, severity: "success", open: true }));
+        navigate(`/fgt-psd?email=${encodeURIComponent(email)}&type=${encodeURIComponent(type)}`);
+      } catch (error) {
+        // Safely destructure error
+        const errorMessage = error.message || "Something went wrong";
+        dispatch(setNotification({ message: errorMessage, severity: "error", open: true }));
+      }
     } else {
-      dispatch(setNotification({ message: "Passwords do not match", severity: "error" , open: true}))
+      dispatch(setNotification({ message: "Passwords do not match", severity: "error", open: true }));
     }
   };
 
@@ -40,7 +52,7 @@ const SignUpPage = () => {
       <Grid item xs={12} sm={8} md={6} lg={4}>
         <Box
           sx={{
-            backgroundColor: "background.paper", // Responsive background for both themes
+            backgroundColor: "background.paper",
             padding: 4,
             borderRadius: 2,
             boxShadow: 3,
@@ -49,40 +61,26 @@ const SignUpPage = () => {
           <Typography variant="h5" component="h1" align="center" gutterBottom>
             Sign Up
           </Typography>
-
           <Box component="form" onSubmit={handleSubmitSignUp}>
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            required
-            onChange={handleEmailChange}
-            sx={{
-                "& label.Mui-focused": {
-                color: (theme) =>
-                    theme.palette.mode === "dark" ? theme.palette.primary.light : theme.palette.primary.main,
-                },
-                "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                    borderColor: (theme) =>
-                    theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.23)",
-                },
-                "&:hover fieldset": {
-                    borderColor: (theme) =>
-                    theme.palette.mode === "dark" ? theme.palette.primary.light : theme.palette.primary.dark,
-                },
-                "&.Mui-focused fieldset": {
-                    borderColor: (theme) =>
-                    theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.dark,
-                },
-                },
-            }}
+            <TextField
+              label="Email"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              required
+              onChange={handleEmailChange}
             />
-
+            <TextField
+              label="Name"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              required
+              onChange={(e) => setName(e.target.value)}
+            />
             <TextField
               label="Password"
-              type={showPassword ? 'text' : 'password'}  // Toggle between text and password
+              type={showPassword ? 'text' : 'password'}
               fullWidth
               value={password}
               onChange={handlePasswordChange}
@@ -92,11 +90,7 @@ const SignUpPage = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                      aria-label="toggle password visibility"
-                    >
+                    <IconButton onClick={handleClickShowPassword} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -105,7 +99,7 @@ const SignUpPage = () => {
             />
             <TextField
               label="Confirm Password"
-              type={confrimShowPassword ? 'text' : 'password'}  // Toggle between text and password
+              type={showPassword ? 'text' : 'password'}
               fullWidth
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
@@ -115,12 +109,8 @@ const SignUpPage = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleClickConfrimShowPassword}
-                      edge="end"
-                      aria-label="toggle password visibility"
-                    >
-                      {confrimShowPassword ? <VisibilityOff /> : <Visibility />}
+                    <IconButton onClick={handleClickShowPassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),

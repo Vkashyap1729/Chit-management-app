@@ -2,20 +2,32 @@ import { useState } from "react";
 import { Grid, TextField, Box, Button, Typography, Link } from "@mui/material";
 import { InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { setNotification } from "../slices/notificationSlice";
+import {login} from '../api'
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
-
+  const dispatch = useDispatch()
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);  // Toggle the value of showPassword
   };
-  const handleSubmitLogin = (e) => {
+  const handleSubmitLogin = async(e) => {
     e.preventDefault();
-    console.log("Logging in with", email, password);
+    try {
+      const response = await login({ email: email, password : password });
+      dispatch(setNotification({ message: response.message, severity: "success", open: true }));
+      navigate('/list-all-chits')
+    } catch (error) {
+      const errorMessage = error.message || "Something went wrong";
+      dispatch(setNotification({ message: errorMessage, severity: "error", open: true }));
+    }
   };
 
   return (
