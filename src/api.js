@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   // baseURL: "http://localhost:5000", // Set the correct base URL for your backend
-  baseURL: "http://13.126.166.15", // Set the correct base URL for your backend
+  baseURL: "https://managementchits.duckdns.org", // Set the correct base URL for your backend
 });
 
 // Reusable API function for POST requests
